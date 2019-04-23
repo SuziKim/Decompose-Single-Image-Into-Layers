@@ -12,6 +12,7 @@ import sys
 
 import csv
 from movie import Movie
+import os
 
 ######***********************************************************************************************
 
@@ -308,7 +309,7 @@ def remove_one_edge_by_finding_smallest_adding_volume_with_test_conditions(mesh,
 ############### using original image as input###############
 
 if __name__=="__main__":
-   
+
     # read basic movie info
     movie_title = sys.argv[1] # ex) in_the_mood_for_love, la_la_land     
     movie = Movie(movie_title)
@@ -318,12 +319,34 @@ if __name__=="__main__":
     # TODO: maybe jittering of colors is needed
     movie.read_shot_colors('brisque', 'localglobal', 0.5, 1.0, 0.1) 
 
+
+    # Generate a directory to save the result
+    output_dir_base = 'colorSchemeResults'
+    output_dir_path = os.path.join(output_dir_base, movie_title)
+    try:
+        if not(os.path.isdir(output_dir_base)):
+            os.makedirs(output_dir_base)
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            print("Failed to create directory!!!!!")
+            raise
+
+
+    try:
+        if not(os.path.isdir(output_dir_path)):
+            os.makedirs(output_dir_path)
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            print("Failed to create directory!!!!!")
+            raise
+
+
     # TODO: decide whether to remove or not
-    output_rawhull_obj_file=sys.argv[1]+"-rawconvexhull.obj"
-    js_output_file=sys.argv[1]+"-final_simplified_hull.js"
-    js_output_clip_file=sys.argv[1]+"-final_simplified_hull_clip.js"
-    js_output_file_origin=sys.argv[1]+"-original_hull.js"
-    E_vertice_num=4
+    output_rawhull_obj_file = os.path.join(output_dir_path, sys.argv[1]+"-rawconvexhull.obj")
+    js_output_file = os.path.join(output_dir_path, sys.argv[1]+"-final_simplified_hull.js")
+    js_output_clip_file = os.path.join(output_dir_path, sys.argv[1]+"-final_simplified_hull_clip.js")
+    js_output_file_origin = os.path.join(output_dir_path, sys.argv[1]+"-original_hull.js")
+    E_vertice_num = 4
 
 
     import time 
