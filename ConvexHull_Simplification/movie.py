@@ -1,7 +1,8 @@
 import csv
+import random
 
 class Movie( object ):
-    def __init__(self, movie_title):
+    def __init__(self, movie_title, should_jitter_colors, jitter_offset = 30):
         self.movie_title = movie_title
         self.shot_lengths = []
         self.normalized_shot_lengths = []
@@ -9,6 +10,9 @@ class Movie( object ):
         self.shot_counts = -1
         self.shot_colors = []
         self.weighted_shot_colors = []
+        self.should_jitter_colors = should_jitter_colors
+        self.jitter_offset = jitter_offset
+
 
     def read_shot_information(self):
         shot_txt_path = '../test-data/%s_shots.txt' % self.movie_title
@@ -39,7 +43,15 @@ class Movie( object ):
                     self.shot_colors.append(rgb_color)
 
                     for idx in range(self.normalized_shot_lengths[shot_idx]):
-                        self.weighted_shot_colors.append(rgb_color)
+                        if self.should_jitter_colors:
+                            rgb_offset = (random.randrange(-self.jitter_offset, self.jitter_offset+1),
+                                random.randrange(-self.jitter_offset, self.jitter_offset+1),
+                                random.randrange(-self.jitter_offset, self.jitter_offset+1))
+
+                            new_rgb_color = tuple(map(lambda x, y: x+y, rgb_color, rgb_offset))
+                            self.weighted_shot_colors.append(new_rgb_color)
+                        else:
+                            self.weighted_shot_colors.append(rgb_color)
 
 
 # if __name__ == "__main__" :

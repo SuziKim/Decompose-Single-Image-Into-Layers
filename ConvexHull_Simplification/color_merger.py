@@ -310,9 +310,13 @@ def remove_one_edge_by_finding_smallest_adding_volume_with_test_conditions(mesh,
 
 if __name__=="__main__":
 
+    # Experiments constraints
+    should_jitter_colors = True
+    jitter_offset = 30
+
     # read basic movie info
     movie_title = sys.argv[1] # ex) in_the_mood_for_love, la_la_land     
-    movie = Movie(movie_title)
+    movie = Movie(movie_title, should_jitter_colors)
     movie.read_shot_information()
 
     # read color info from movie
@@ -342,10 +346,10 @@ if __name__=="__main__":
 
 
     # TODO: decide whether to remove or not
-    output_rawhull_obj_file = os.path.join(output_dir_path, sys.argv[1]+"-rawconvexhull.obj")
-    js_output_file = os.path.join(output_dir_path, sys.argv[1]+"-final_simplified_hull.js")
-    js_output_clip_file = os.path.join(output_dir_path, sys.argv[1]+"-final_simplified_hull_clip.js")
-    js_output_file_origin = os.path.join(output_dir_path, sys.argv[1]+"-original_hull.js")
+    output_rawhull_obj_file = os.path.join(output_dir_path, sys.argv[1]+(("_o-%d-rawconvexhull.obj") % jitter_offset))
+    js_output_file = os.path.join(output_dir_path, sys.argv[1]+(("_o-%d-final_simplified_hull.js") % jitter_offset))
+    js_output_clip_file = os.path.join(output_dir_path, sys.argv[1]+(("_o-%d-final_simplified_hull_clip.js") % jitter_offset))
+    js_output_file_origin = os.path.join(output_dir_path, sys.argv[1]+(("_o-%d-original_hull.js") % jitter_offset))
     E_vertice_num = 4
 
 
@@ -401,9 +405,9 @@ if __name__=="__main__":
 
             
                 
-    newhull=ConvexHull(mesh.vs)
+    # newhull=ConvexHull(mesh.vs)
     # visualize_hull(newhull)
-    write_convexhull_into_obj_file(newhull, output_rawhull_obj_file) 
+    # write_convexhull_into_obj_file(newhull, output_rawhull_obj_file) 
     # print newhull.points[newhull.vertices]
 
 
@@ -411,8 +415,8 @@ if __name__=="__main__":
     # with open( js_output_file, 'w' ) as myfile:
     #     json.dump({'vs': newhull.points[ newhull.vertices ].tolist(),'faces': newhull.points[ newhull.simplices ].tolist()}, myfile, indent = 4 )
 
-    with open( js_output_file_origin, 'w' ) as myfile_origin:
-        json.dump({'vs': origin_hull.points[ origin_hull.vertices ].tolist(),'faces': origin_hull.points[ origin_hull.simplices ].tolist()}, myfile_origin, indent = 4 )
+    # with open( js_output_file_origin, 'w' ) as myfile_origin:
+        # json.dump({'vs': origin_hull.points[ origin_hull.vertices ].tolist(),'faces': origin_hull.points[ origin_hull.simplices ].tolist()}, myfile_origin, indent = 4 )
 
 
     end_time=time.clock()
