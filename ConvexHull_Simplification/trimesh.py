@@ -396,8 +396,8 @@ class TriMesh( object ):
                 originating_vertex, Set()
                 ).add( hei )
             if len( vertex2outgoing_boundary_hei[ originating_vertex ] ) > 1:
-                print 'Butterfly vertex encountered'
-        
+                print('Butterfly vertex encountered')
+
         ## For each boundary halfedge, make its next_he one of the boundary halfedges
         ## originating at its to_vertex.
         for hei in boundary_heis:
@@ -407,7 +407,7 @@ class TriMesh( object ):
                 vertex2outgoing_boundary_hei[ he.to_vertex ].remove( outgoing_hei )
                 break
         
-        assert False not in [ 0 == len( out_heis ) for out_heis in vertex2outgoing_boundary_hei.itervalues() ]
+        assert False not in [ 0 == len( out_heis ) for out_heis in iter(vertex2outgoing_boundary_hei.values())]
     
     def he_index2directed_edge( self, he_index ):
         '''
@@ -856,7 +856,7 @@ class TriMesh( object ):
             if not sline: continue
             
             elif sline[0] == 'v':
-                result.vs.append( asarrayf( map( float, sline[1:] ) ) )
+                result.vs.append( asarrayf( [float(s) for s in sline[1:]]))
                 ## Vertices must have three coordinates.
                 assert len( result.vs[-1] ) == 3
             
@@ -907,7 +907,7 @@ class TriMesh( object ):
         ## If we have uv's, then we will reach 1MB with (1024*1024/(2*16+2*20)) = 14563 vertices.
         ## Print a warning if we're going to save a mesh much larger than a megabyte.
         if len( self.vs ) > 15000:
-            print '[Writing a large OBJ to "%s"...]' % (fname,)
+            print('[Writing a large OBJ to "%s"...]' % (fname,))
         
         
         out = file( fname, 'w' )
@@ -947,7 +947,7 @@ class TriMesh( object ):
         
         out.close()
         
-        print '[OBJ written to "%s"]' % (fname,)
+        print('[OBJ written to "%s"]' % (fname,))
     
     def write_OFF( self, fname ):
         '''
@@ -966,7 +966,7 @@ class TriMesh( object ):
         
         out.close()
         
-        print '[OFF written to "%s"]' % (fname,)
+        print('[OFF written to "%s"]' % (fname,))
 
 ## We can't pickle anything that doesn't have a name visible at module scope.
 ## In order to allow pickling of class TriMesh, we'll make a reference to the inner HalfEdge class

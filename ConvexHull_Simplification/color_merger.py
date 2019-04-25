@@ -8,11 +8,9 @@ from scipy.optimize import *
 from math import *
 import cvxopt   
 import PIL.Image as Image  
-import sys    
 
 import csv
-from movie import Movie
-import os
+from DSIIL.ConvexHull_Simplification.movie import Movie
 
 ######***********************************************************************************************
 
@@ -61,7 +59,7 @@ def visualize_hull(hull,groundtruth_hull=None):
     
     
     
-from trimesh import TriMesh
+from DSIIL.ConvexHull_Simplification.trimesh import TriMesh
 
 def write_convexhull_into_obj_file(hull, output_rawhull_obj_file):
     hvertices=hull.points[hull.vertices]
@@ -114,7 +112,7 @@ def edge_normal_test(vertices, faces, old_face_index_list, v0_ind, v1_ind):
             
     assert( len(central_two_face_list)==2 )
     if len(central_two_face_list)+len(selected_old_face_list)!=len(old_face_index_list):
-        print 'error!!!!!!'
+        print('error!!!!!!')
     
     central_two_face_normal_list=[]
     neighbor_face_dot_normal_list=[]
@@ -238,7 +236,7 @@ def remove_one_edge_by_finding_smallest_adding_volume_with_test_conditions(mesh,
 
     if option==1:
         if len(temp_list1)==0:
-            print 'all fails'
+            print('all fails')
             hull=ConvexHull(mesh.vs)
         else:
             min_tuple=min(temp_list1,key=lambda x: x[1])
@@ -255,7 +253,7 @@ def remove_one_edge_by_finding_smallest_adding_volume_with_test_conditions(mesh,
     if option==2:
         
         if len(temp_list1)==0:
-            print 'all fails'
+            print('all fails')
         else:
             min_tuple=min(temp_list1,key=lambda x: x[1])
             # print min_tuple
@@ -306,24 +304,22 @@ def remove_one_edge_by_finding_smallest_adding_volume_with_test_conditions(mesh,
     
     
 
-############### using original image as input###############
-
-if __name__=="__main__":
+# movie_title: ex) in_the_mood_for_love, la_la_land     
+# jitter_offset: same or larger than zero
+def merge_colors(movie_title, jitter_offset = 30):
 
     # Experiments constraints
     should_jitter_colors = True
-    jitter_offset = 30
 
     # read basic movie info
-    movie_title = sys.argv[1] # ex) in_the_mood_for_love, la_la_land     
     movie = Movie(movie_title, should_jitter_colors)
     movie.read_shot_information()
 
     # read color info from movie
-    # TODO: maybe jittering of colors is needed
     movie.read_shot_colors('brisque', 'localglobal', 0.5, 1.0, 0.1) 
 
-
+    import os
+    
     # Generate a directory to save the result
     output_dir_base = 'colorSchemeResults'
     output_dir_path = os.path.join(output_dir_base, movie_title)
@@ -335,7 +331,6 @@ if __name__=="__main__":
             print("Failed to create directory!!!!!")
             raise
 
-
     try:
         if not(os.path.isdir(output_dir_path)):
             os.makedirs(output_dir_path)
@@ -344,17 +339,12 @@ if __name__=="__main__":
             print("Failed to create directory!!!!!")
             raise
 
-
-    # TODO: decide whether to remove or not
-    output_rawhull_obj_file = os.path.join(output_dir_path, sys.argv[1]+(("_o-%d-rawconvexhull.obj") % jitter_offset))
-    js_output_file = os.path.join(output_dir_path, sys.argv[1]+(("_o-%d-final_simplified_hull.js") % jitter_offset))
-    js_output_clip_file = os.path.join(output_dir_path, sys.argv[1]+(("_o-%d-final_simplified_hull_clip.js") % jitter_offset))
-    js_output_file_origin = os.path.join(output_dir_path, sys.argv[1]+(("_o-%d-original_hull.js") % jitter_offset))
+    output_rawhull_obj_file = os.path.join(output_dir_path, movie_title +(("_o-%d-rawconvexhull.obj") % jitter_offset))
+    js_output_file = os.path.join(output_dir_path, movie_title +(("_o-%d-final_simplified_hull.js") % jitter_offset))
+    js_output_clip_file = os.path.join(output_dir_path, movie_title +(("_o-%d-final_simplified_hull_clip.js") % jitter_offset))
+    js_output_file_origin = os.path.join(output_dir_path, movie_title +(("_o-%d-original_hull.js") % jitter_offset))
     E_vertice_num = 4
 
-
-    import time 
-    start_time=time.clock()
 
     # images=np.asfarray(Image.open(input_image_path).convert('RGB')).reshape((-1,3))
     images = np.asfarray(movie.weighted_shot_colors)
@@ -365,12 +355,9 @@ if __name__=="__main__":
     write_convexhull_into_obj_file(hull, output_rawhull_obj_file)
 
 
-
-
     N=500
     mesh=TriMesh.FromOBJ_FileName(output_rawhull_obj_file)
-    print 'original vertices number:',len(mesh.vs)
-
+    print('original vertices number:',len(mesh.vs))
 
     for i in range(N):
 
@@ -400,28 +387,7 @@ if __name__=="__main__":
 
 
         if len(mesh.vs)==old_num or len(mesh.vs)<=E_vertice_num:
-            print 'final vertices number', len(mesh.vs)
+            print('final vertices number', len(mesh.vs))
             break
 
-            
-                
-    # newhull=ConvexHull(mesh.vs)
-    # visualize_hull(newhull)
-    # write_convexhull_into_obj_file(newhull, output_rawhull_obj_file) 
-    # print newhull.points[newhull.vertices]
-
-
-    # import json
-    # with open( js_output_file, 'w' ) as myfile:
-    #     json.dump({'vs': newhull.points[ newhull.vertices ].tolist(),'faces': newhull.points[ newhull.simplices ].tolist()}, myfile, indent = 4 )
-
-    # with open( js_output_file_origin, 'w' ) as myfile_origin:
-        # json.dump({'vs': origin_hull.points[ origin_hull.vertices ].tolist(),'faces': origin_hull.points[ origin_hull.simplices ].tolist()}, myfile_origin, indent = 4 )
-
-
-    end_time=time.clock()
-
-    print 'time: ', end_time-start_time
-
-
-
+    return pigments_colors
